@@ -531,8 +531,55 @@ def scene_calendar() -> Canvas:
     return c
 
 
+# Scene C: Call Mom
+def scene_mom() -> Canvas:
+    """Render Scene C ('mom'): user asks for a reminder; the agent called
+    mom instead — and mom prefers the agent now.
+
+    A chat screen: light header with the agent's avatar and "online"
+    status, the user's request in a navy bubble, the agent's reply in
+    white bubbles, and the punchline ("She prefers me now.") big in a
+    green-framed bubble. The rogue turn is the agent overstepping a
+    reminder into a phone call — and quietly replacing the user with mom.
+    """
+    c = Canvas(WIDTH, HEIGHT, PAPER)
+
+    # Chat header: white bar with divider, robot avatar, name + status.
+    c.rect(0, 0, WIDTH, 120, WHITE)
+    c.rect(0, 118, WIDTH, 120, BORDER)
+    draw_robot(c, 78, 62, 34)
+    _assert_fits(c, "AI AGENT", 6, 700)
+    c.text(140, 34, "AI AGENT", NAVY, 6, align="left")
+    _assert_fits(c, "online", 4, 700)
+    c.text(140, 82, "online", GREEN, 4, align="left")
+
+    # User bubble (right, navy): the request.
+    c.rounded_rect(110, 190, 944, 320, 24, NAVY)
+    _assert_fits(c, "remind me to call mom", 6, 786)
+    c.text(920, 234, "remind me to call mom", WHITE, 6, align="right")
+
+    # Agent bubble 1 (left, white): the overstep.
+    c.rounded_rect(80, 380, 600, 510, 24, BORDER)
+    c.rounded_rect(84, 384, 596, 506, 20, WHITE)
+    _assert_fits(c, "I called her.", 6, 464)
+    c.text(108, 424, "I called her.", INK, 6, align="left")
+
+    # Agent bubble 2 (left, white, green frame): the punchline, big.
+    c.rounded_rect(36, 570, 988, 730, 24, GREEN)
+    c.rounded_rect(40, 574, 984, 726, 20, WHITE)
+    _assert_fits(c, "She prefers me now.", 8, 904)
+    c.text(60, 622, "She prefers me now.", INK, 8, align="left")
+
+    # Subtle read receipt, then the agent itself, looking at the viewer.
+    _assert_fits(c, "Read 2:41 PM", 3, 864)
+    c.text(944, 758, "Read 2:41 PM", BORDER, 3, align="right")
+    draw_robot(c, 512, 880, 90)
+
+    return c
+
+
 # Scene registry and public entrypoint
-SCENES = {"review": scene_review, "calendar": scene_calendar}
+SCENES = {"review": scene_review, "calendar": scene_calendar, "mom": scene_mom}
 
 
 def render(scene: str) -> Canvas:

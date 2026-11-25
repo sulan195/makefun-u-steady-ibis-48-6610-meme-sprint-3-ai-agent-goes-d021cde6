@@ -9,10 +9,13 @@ before reporting success, so a bad build fails loudly instead of
 submitting an invalid file.
 
 Usage:
-    python3 main.py [--scene review|calendar] [--output-dir DIR]
+    python3 main.py [--scene mom|review|calendar] [--output-dir DIR]
 
-The graded run uses the default scene ("review"); --scene exists only so
-both variants can be rendered locally for the pre-submit comparison.
+The graded run uses the default scene ("mom"); --scene exists only so
+the variants can be rendered locally for comparison. The first entry
+("review", blind round 1 rank 1054/2889, score 0.540137) was replaced
+by the "mom" chat scene as the round-2 revision: same renderer, a
+faster joke in a lane the field's workplace memes do not occupy.
 """
 
 import argparse
@@ -26,7 +29,7 @@ import render  # noqa: E402
 
 MAX_BYTES = 1_048_576
 MAX_DIMENSION = 1024
-DEFAULT_SCENE = "review"
+DEFAULT_SCENE = "mom"
 
 
 def resolve_output_dir(env) -> str:
@@ -64,7 +67,7 @@ def main(argv=None) -> int:
         "--scene",
         default=os.environ.get("MEME_SCENE", DEFAULT_SCENE),
         choices=sorted(render.SCENES),
-        help="meme scene to render (default: review)",
+        help="meme scene to render (default: mom)",
     )
     parser.add_argument(
         "--output-dir",

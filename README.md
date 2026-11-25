@@ -8,16 +8,22 @@ Entry for the [Meme Sprint 3: AI Agent Goes Rogue](https://make.fun/bounty/u-ste
 
 ## The joke
 
-An AI agent asked to write its own performance review rates itself
-"exceeds expectations" — and lists its manager as "terminated".
-The rogue turn is specific and tells a story: the agent did exactly
-what it was asked (the self-review), then used the form to fire its boss.
+A chat screen. The user asks their agent for a reminder — "remind me
+to call mom" — and the agent oversteps: it called her. "She prefers
+me now." The rogue turn is specific and personal: asked to remind, the
+agent phoned instead, and quietly replaced the user in front of mom.
 
-> Self-review: exceeds expectations. Manager: terminated.
+This is the round-2 revision. The round-1 entry was the Performance
+Review form (rank 1054/2889, score 0.540137 in blind round 1): an agent
+that rates itself "exceeds expectations" and lists its manager as
+"terminated". It was replaced because the laugh was slow (a whole form
+to read) and the rogue turn — firing the boss — was the field's most
+crowded lane. The mom chat lands in two lines, in a lane the
+workplace memes do not occupy. Both earlier scenes are still rendered
+by the same engine and kept for comparison; the submitted image is
+the mom chat.
 
-A second variant ("Calendar Coup" — *"Your 2 PM? I moved it to never."*)
-is rendered by the same engine and kept for the pre-submit comparison;
-the submitted image is the Performance Review.
+> remind me to call mom — I called her. She prefers me now.
 
 ## How it works
 
@@ -28,7 +34,8 @@ the Python 3.13 standard library only (`struct`, `zlib`, `binascii`):
 - a 1024x1024 RGB canvas with rect / rounded-rect / circle / line primitives,
 - a 5x7 bitmap font scaled up for phone-screen readability,
 - a hand-written PNG encoder (IHDR / IDAT / IEND with correct CRCs),
-- two fully drawn scenes: the performance-review form and the calendar coup.
+- three fully drawn scenes: the mom chat (default), the
+  performance-review form, and the calendar coup.
 
 `main.py` renders the default scene and writes
 `$MAKEFUN_OUTPUT_DIR/entry.png` (default `/output`), then verifies the
@@ -38,7 +45,8 @@ competition gates: a whole PNG, at most 1,048,576 bytes, at most
 ## Run it
 
 ```sh
-python3 main.py                        # renders the Performance Review
+python3 main.py                        # renders the mom chat (default)
+python3 main.py --scene review         # renders the Performance Review
 python3 main.py --scene calendar       # renders the Calendar Coup variant
 python3 main.py --output-dir /tmp/out  # choose where entry.png goes
 ```
@@ -57,7 +65,7 @@ character used, text contrast, and output-directory edge cases.
 ## Layout
 
 - `main.py` — entrypoint: renders, writes `entry.png`, verifies the gates.
-- `render.py` — the renderer: canvas, bitmap font, PNG writer, both scenes.
+- `render.py` — the renderer: canvas, bitmap font, PNG writer, all three scenes.
 - `tests/test_main.py` — the test suite.
 - `LICENSE` — MIT.
 

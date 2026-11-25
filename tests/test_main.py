@@ -31,7 +31,10 @@ SCENE_STRINGS = [
     "Manager: terminated.",
     "Your 2 PM?", "2 PM", "MEETING", "WITH BOSS", "NEVER",
     "I moved it", "to never.",
+    "AI AGENT", "online", "remind me to call mom",
+    "I called her.", "She prefers me now.", "Read 2:41 PM",
 ]
+ALL_SCENES = ("review", "calendar", "mom")
 
 
 def png_chunks(data: bytes):
@@ -50,8 +53,8 @@ def png_chunks(data: bytes):
 
 
 class TestRender(unittest.TestCase):
-    def test_both_scenes_render(self):
-        for name in ("review", "calendar"):
+    def test_all_scenes_render(self):
+        for name in ALL_SCENES:
             canvas = render.render(name)
             self.assertIsNotNone(canvas)
 
@@ -86,6 +89,11 @@ class TestRender(unittest.TestCase):
             ("Your 2 PM?", 10, 944), ("2 PM", 2, 113), ("MEETING", 2, 113),
             ("WITH BOSS", 2, 113), ("NEVER", 12, 364),
             ("I moved it", 7, 464), ("to never.", 7, 464),
+            ("AI AGENT", 6, 700), ("online", 4, 700),
+            ("remind me to call mom", 6, 786),
+            ("I called her.", 6, 464),
+            ("She prefers me now.", 8, 904),
+            ("Read 2:41 PM", 3, 864),
         ]
         for text, scale, max_width in cases:
             width = render.Canvas().text_width(text, scale)
@@ -94,7 +102,7 @@ class TestRender(unittest.TestCase):
 
     def test_determinism_byte_identical(self):
         digests = {}
-        for name in ("review", "calendar"):
+        for name in ALL_SCENES:
             with tempfile.TemporaryDirectory() as d:
                 paths = []
                 for i in range(2):
@@ -106,10 +114,11 @@ class TestRender(unittest.TestCase):
             self.assertEqual(hashes[0], hashes[1],
                              f"{name}: repeat runs differ")
             digests[name] = hashes[0]
-        self.assertNotEqual(digests["review"], digests["calendar"])
+        self.assertEqual(len(set(digests.values())), len(ALL_SCENES),
+                         "scenes must render distinct images")
 
     def test_png_valid_and_within_size(self):
-        for name in ("review", "calendar"):
+        for name in ALL_SCENES:
             with tempfile.TemporaryDirectory() as d:
                 path, size, _ = run(name, d)
                 self.assertLessEqual(size, MAX_BYTES)
@@ -163,6 +172,12 @@ class TestRender(unittest.TestCase):
         self.assertGreaterEqual(ratio((192, 57, 43), paper), 4.5)  # RED/paper
         self.assertGreaterEqual(ratio((30, 125, 50), (255, 255, 255)), 4.5)
         self.assertGreaterEqual(ratio((255, 255, 255), (192, 57, 43)), 4.5)
+        # Chat scene pairs: white user-bubble text on navy, ink agent text
+        # on white, light "online" status on navy, navy title on white.
+        self.assertGreaterEqual(ratio((255, 255, 255), (31, 42, 68)), 4.5)
+        self.assertGreaterEqual(ratio((34, 34, 34), (255, 255, 255)), 4.5)
+        self.assertGreaterEqual(ratio((233, 228, 216), (31, 42, 68)), 4.5)
+        self.assertGreaterEqual(ratio((31, 42, 68), (255, 255, 255)), 4.5)
 
     def test_never_box_text_is_large(self):
         # The biggest text ("NEVER", scale 16) must render tall enough to
@@ -205,6 +220,17 @@ class TestMain(unittest.TestCase):
             rc = entry_main(["--scene", "calendar", "--output-dir", d])
             self.assertEqual(rc, 0)
             self.assertTrue(os.path.isfile(os.path.join(d, "entry.png")))
+
+    def test_default_scene_is_mom(self):
+        # The graded run renders the mom scene by default (round-2 revision).
+        with tempfile.TemporaryDirectory() as d:
+            from main import main as entry_main
+            rc = entry_main(["--output-dir", d])
+            self.assertEqual(rc, 0)
+            data = open(os.path.join(d, "entry.png"), "rb").read()
+            with tempfile.TemporaryDirectory() as d2:
+                _, _, mom_digest = run("mom", d2)
+            self.assertEqual(hashlib.sha256(data).hexdigest(), mom_digest)
 
     def test_main_bad_scene_returns_nonzero(self):
         with tempfile.TemporaryDirectory() as d:
