@@ -29,7 +29,7 @@ import render  # noqa: E402
 
 MAX_BYTES = 1_048_576
 MAX_DIMENSION = 1024
-DEFAULT_SCENE = "mom"
+DEFAULT_SCENE = "landlord"
 
 
 def resolve_output_dir(env) -> str:

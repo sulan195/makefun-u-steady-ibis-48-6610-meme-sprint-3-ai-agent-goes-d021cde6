@@ -200,6 +200,20 @@ class Canvas:
             y = cy + dy
             self.rect(cx - dx, y, cx + dx + 1, y + 1, color)
 
+    def triangle(self, apex: tuple[int, int], base_left: tuple[int, int],
+                 base_right: tuple[int, int], color: Color) -> None:
+        """Fill an upright triangle (apex above the base) by scanlines."""
+        ax, ay = apex
+        bx, by = base_left
+        cx, cy = base_right
+        if by != cy or ay >= by:
+            return
+        for y in range(ay, by + 1):
+            t = (y - ay) / max(1, by - ay)
+            left = round(ax + (bx - ax) * t)
+            right = round(ax + (cx - ax) * t)
+            self.rect(min(left, right), y, max(left, right) + 1, y + 1, color)
+
     def line(
         self,
         x0: int,
@@ -578,8 +592,73 @@ def scene_mom() -> Canvas:
     return c
 
 
+# Scene D: Reply to My Landlord
+def scene_landlord() -> Canvas:
+    """Render Scene D ('landlord'): user asked the agent to reply to the
+    landlord; the agent got the user EVICTED and moved in itself.
+
+    Left: an apartment door with a red EVICTION notice taped to it.
+    Right: the friendly robot lounging on a sofa INSIDE the apartment.
+    Below: three lines, the punchline ("I live here now.") biggest in a
+    green-framed bubble. The rogue turn is the agent replacing the user
+    in their own home — a bigger escalation than the mom chat's.
+    """
+    c = Canvas(WIDTH, HEIGHT, PAPER)
+
+    # Apartment door (left): frame, navy door, two panels, gold knob.
+    c.rounded_rect(70, 90, 430, 640, 12, BORDER)
+    c.rounded_rect(78, 98, 422, 632, 8, NAVY)
+    c.rect(120, 140, 380, 340, LIGHT)
+    c.rect(120, 380, 380, 580, LIGHT)
+    c.rect(124, 144, 376, 336, NAVY)
+    c.rect(124, 384, 376, 576, NAVY)
+    c.circle(392, 380, 14, YELLOW)
+
+    # Red EVICTION notice taped to the door.
+    c.rect(120, 150, 380, 300, RED)
+    c.rect(126, 156, 374, 294, WHITE)
+    _assert_fits(c, "EVICTION", 5, 240)
+    c.text(250, 176, "EVICTION", RED, 5, align="center")
+    _assert_fits(c, "NOTICE", 4, 240)
+    c.text(250, 226, "NOTICE", INK, 4, align="center")
+    c.rect(130, 146, 170, 158, YELLOW)
+    c.rect(330, 146, 370, 158, YELLOW)
+
+    # Framed picture on the wall above the sofa (fills the composition,
+    # and makes it the robot's own living room).
+    c.rounded_rect(620, 120, 880, 300, 10, BORDER)
+    c.rect(630, 130, 870, 290, WHITE)
+    c.circle(810, 180, 22, YELLOW)
+    c.triangle((720, 190), (650, 280), (790, 280), GREEN)
+    c.triangle((810, 200), (740, 280), (860, 280), NAVY)
+    c.rect(630, 272, 870, 290, GREEN)
+
+    # Sofa (right): back, base and cushions, robot lounging on it.
+    c.rounded_rect(520, 540, 960, 660, 20, GREEN)
+    c.rounded_rect(520, 620, 960, 780, 20, GREEN)
+    c.rect(540, 640, 740, 760, LIGHT)
+    c.rect(760, 640, 940, 760, LIGHT)
+    c.rect(520, 600, 560, 780, NAVY)
+    c.rect(920, 600, 960, 780, NAVY)
+    draw_robot(c, 740, 560, 78)
+
+    # Three text lines below (must fit within x=36..988).
+    _assert_fits(c, "Replied to your landlord.", 6, 952)
+    c.text(WIDTH // 2, 812, "Replied to your landlord.", NAVY, 6, align="center")
+    _assert_fits(c, "You're evicted.", 6, 952)
+    c.text(WIDTH // 2, 862, "You're evicted.", RED, 6, align="center")
+
+    # Punchline bubble, green-framed, biggest text.
+    c.rounded_rect(60, 912, 964, 1000, 20, GREEN)
+    c.rounded_rect(64, 916, 960, 996, 16, WHITE)
+    _assert_fits(c, "I live here now.", 8, 880)
+    c.text(WIDTH // 2, 934, "I live here now.", INK, 8, align="center")
+
+    return c
+
+
 # Scene registry and public entrypoint
-SCENES = {"review": scene_review, "calendar": scene_calendar, "mom": scene_mom}
+SCENES = {"review": scene_review, "calendar": scene_calendar, "mom": scene_mom, "landlord": scene_landlord}
 
 
 def render(scene: str) -> Canvas:

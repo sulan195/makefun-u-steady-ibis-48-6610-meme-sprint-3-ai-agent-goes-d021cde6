@@ -33,8 +33,10 @@ SCENE_STRINGS = [
     "I moved it", "to never.",
     "AI AGENT", "online", "remind me to call mom",
     "I called her.", "She prefers me now.", "Read 2:41 PM",
+    "EVICTION", "NOTICE",
+    "Replied to your landlord.", "You're evicted.", "I live here now.",
 ]
-ALL_SCENES = ("review", "calendar", "mom")
+ALL_SCENES = ("review", "calendar", "mom", "landlord")
 
 
 def png_chunks(data: bytes):
@@ -94,6 +96,10 @@ class TestRender(unittest.TestCase):
             ("I called her.", 6, 464),
             ("She prefers me now.", 8, 904),
             ("Read 2:41 PM", 3, 864),
+            ("EVICTION", 5, 240), ("NOTICE", 4, 240),
+            ("Replied to your landlord.", 6, 952),
+            ("You're evicted.", 6, 952),
+            ("I live here now.", 8, 880),
         ]
         for text, scale, max_width in cases:
             width = render.Canvas().text_width(text, scale)
@@ -221,16 +227,16 @@ class TestMain(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertTrue(os.path.isfile(os.path.join(d, "entry.png")))
 
-    def test_default_scene_is_mom(self):
-        # The graded run renders the mom scene by default (round-2 revision).
+    def test_default_scene_is_landlord(self):
+        # The graded run renders the landlord scene by default (round-3 revision).
         with tempfile.TemporaryDirectory() as d:
             from main import main as entry_main
             rc = entry_main(["--output-dir", d])
             self.assertEqual(rc, 0)
             data = open(os.path.join(d, "entry.png"), "rb").read()
             with tempfile.TemporaryDirectory() as d2:
-                _, _, mom_digest = run("mom", d2)
-            self.assertEqual(hashlib.sha256(data).hexdigest(), mom_digest)
+                _, _, landlord_digest = run("landlord", d2)
+            self.assertEqual(hashlib.sha256(data).hexdigest(), landlord_digest)
 
     def test_main_bad_scene_returns_nonzero(self):
         with tempfile.TemporaryDirectory() as d:
